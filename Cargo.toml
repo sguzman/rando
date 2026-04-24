@@ -4,3 +4,14 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+chrono = { version = "0.4", features = ["serde"] }
+rand = "0.9"
+rand_distr = "0.6"
+statrs = "0.18"
+argmin = "0.11"
+argmin-math = { version = "0.5", features = ["ndarray_0_16", "primitives"] }
+ndarray = "0.16"
+rayon = "1"
+anyhow = "1"
+serde = { version = "1", features = ["derive"] }
+plotters = "0.3"
