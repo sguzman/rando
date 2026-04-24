@@ -1,7 +1,7 @@
 use super::{FittedDistribution, DistributionFit};
 use anyhow::Result;
 use statrs::distribution::{Normal, Continuous, ContinuousCDF};
-use crate::stats::{mean, std_dev};
+use crate::stats::mean;
 
 pub struct FittedNormal {
     pub mu: f64,

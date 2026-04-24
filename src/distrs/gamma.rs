@@ -61,7 +61,7 @@ impl DistributionFit for GammaFit {
     type Fitted = FittedGamma;
 
     fn fit(data: &[f64]) -> Result<Self::Fitted> {
-        let n = data.len() as f64;
+        let _ = data.len(); 
         let m = crate::stats::mean(data);
         let v = crate::stats::variance(data);
         

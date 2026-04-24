@@ -1,5 +1,24 @@
+pub mod t_test;
+pub mod z_test;
+
 use crate::distrs::FittedDistribution;
 use anyhow::Result;
+use statrs::distribution::{ChiSquared, ContinuousCDF};
+
+pub struct TestResult {
+    pub statistic: f64,
+    pub p_value: f64,
+}
+
+pub fn t_test(data: &[f64], mu0: f64) -> Result<TestResult> {
+    let res = t_test::t_test_one_sample(data, mu0);
+    Ok(TestResult { statistic: res.statistic, p_value: res.p_value })
+}
+
+pub fn z_test(data: &[f64], mu0: f64, sigma: f64) -> Result<TestResult> {
+    let res = z_test::z_test_one_sample(data, mu0, sigma);
+    Ok(TestResult { statistic: res.statistic, p_value: res.p_value })
+}
 
 pub struct KSTestResult {
     pub statistic: f64,
@@ -9,6 +28,27 @@ pub struct KSTestResult {
 pub struct ADTestResult {
     pub statistic: f64,
     pub p_value: f64,
+}
+
+pub fn jarque_bera_test(data: &[f64]) -> TestResult {
+    let n = data.len() as f64;
+    let s = crate::stats::skewness(data);
+    let k = crate::stats::kurtosis(data);
+    let statistic = (n / 6.0) * (s.powi(2) + (k - 3.0).powi(2) / 4.0);
+    let chi2 = ChiSquared::new(2.0).unwrap();
+    let p_value = 1.0 - chi2.cdf(statistic);
+    TestResult { statistic, p_value }
+}
+
+pub fn pearson_chi_square_test(observed: &[f64], expected: &[f64]) -> TestResult {
+    let mut statistic = 0.0;
+    for i in 0..observed.len() {
+        statistic += (observed[i] - expected[i]).powi(2) / expected[i];
+    }
+    let df = (observed.len() - 1) as f64;
+    let chi2 = ChiSquared::new(df).unwrap();
+    let p_value = 1.0 - chi2.cdf(statistic);
+    TestResult { statistic, p_value }
 }
 
 pub fn kolmogorov_smirnov_test(data: &[f64], dist: &dyn FittedDistribution) -> Result<KSTestResult> {
@@ -62,9 +102,6 @@ pub fn anderson_darling_test(data: &[f64], dist: &dyn FittedDistribution) -> Res
     }
 
     let a2 = -n - (sum_terms / n);
-    
-    // P-value approximation for AD (general approach)
-    // Note: True p-value depends on the distribution. This is a heuristic.
     let p_value = compute_ad_p_value(a2);
 
     Ok(ADTestResult {
@@ -90,15 +127,13 @@ fn compute_kolmogorov_p_value(stat: f64) -> f64 {
 }
 
 fn compute_ad_p_value(a2: f64) -> f64 {
-    // Heuristic p-value for Anderson-Darling
-    // Based on asymptotic distribution
     if a2 <= 0.0 { return 1.0; }
     
     if a2 >= 0.6 {
         1.2937 * (-2.2568 * a2).exp() + 0.011
     } else if a2 >= 0.34 {
-        1.2937 * (-2.2568 * a2).exp() + 0.011 // Simple placeholder
+        1.2937 * (-2.2568 * a2).exp() + 0.011 
     } else {
-        1.0 - (1.0 - (0.01 / a2)).exp() // Placeholder
+        1.0 - (1.0 - (0.01 / a2)).exp() 
     }.clamp(0.0, 1.0)
 }

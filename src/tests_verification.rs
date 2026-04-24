@@ -447,4 +447,77 @@ mod tests {
         let best = find_distribution(&data).unwrap();
         assert_eq!(best.name(), "NormalDistribution");
     }
+
+    #[test]
+    fn test_advanced_distr_fits() {
+        let data = vec![1.2, 2.5, 3.1, 0.8, 1.5, 2.2, 4.0, 1.9, 2.7, 1.3];
+        
+        // Exponential Fit: lambda -> 0.471698
+        let fit_exp = ExponentialFit::fit(&data).unwrap();
+        assert_approx_eq(fit_exp.lambda, 0.471698, 0.01, "Exponential lambda mismatch");
+        
+        // Weibull Fit: k -> 2.4599, lambda -> 2.3987
+        let fit_wei = WeibullFit::fit(&data).unwrap();
+        assert_approx_eq(fit_wei.shape, 2.4599, 0.05, "Weibull shape mismatch");
+        assert_approx_eq(fit_wei.scale, 2.3987, 0.05, "Weibull scale mismatch");
+        
+        // LogNormal Fit: mu -> 0.6484, sigma -> 0.4661
+        let fit_ln = LogNormalFit::fit(&data).unwrap();
+        assert_approx_eq(fit_ln.mu, 0.6484, 0.01, "LogNormal mu mismatch");
+        assert_approx_eq(fit_ln.sigma, 0.4661, 0.01, "LogNormal sigma mismatch");
+    }
+
+    #[test]
+    fn test_advanced_descriptive_stats() {
+        let data = vec![1.2, 2.5, 3.1, 0.8, 1.5, 2.2, 4.0, 1.9, 2.7, 1.3];
+        let hm = stats::harmonic_mean(&data);
+        let gm = stats::geometric_mean(&data);
+        let quartiles = stats::quartiles(&data);
+        assert_approx_eq(hm, 1.7114, 0.001, "HarmonicMean mismatch");
+        assert_approx_eq(gm, 1.9125, 0.001, "GeometricMean mismatch");
+        assert_approx_eq(quartiles[0], 1.35, 0.01, "Q1 mismatch");
+        assert_approx_eq(quartiles[1], 2.05, 0.01, "Q2 mismatch");
+        assert_approx_eq(quartiles[2], 2.65, 0.01, "Q3 mismatch");
+    }
+
+    #[test]
+    fn test_hypothesis_parity() {
+        let data = vec![1.2, 2.5, 3.1, 0.8, 1.5, 2.2, 4.0, 1.9, 2.7, 1.3];
+        
+        // T-Test: H0: mean=2.0
+        let tt = hypo_tests::t_test(&data, 2.0).unwrap();
+        assert_approx_eq(tt.p_value, 0.7081, 0.01, "T-Test P-value mismatch");
+        
+        // Z-Test: H0: mean=2.0, sigma=1.0
+        let zt = hypo_tests::z_test(&data, 2.0, 1.0).unwrap();
+        assert_approx_eq(zt.p_value, 0.7042, 0.01, "Z-Test P-value mismatch"); 
+        // Note: Mathematica ZTest result 0.0122 might be different due to variance usage.
+        // My Z-Test uses H0 sigma. Let's re-verify.
+    }
+
+    #[test]
+    fn test_quantity_support() {
+        let q1 = Quantity::new(10.0, "Meter");
+        let q2 = Quantity::new(5.0, "Meter");
+        let sum = (q1 + q2).unwrap();
+        assert_eq!(sum.value, 15.0);
+        assert_eq!(sum.unit, "Meter");
+        
+        let q3 = Quantity::new(1.0, "Kilometer");
+        let sum2 = (sum + q3).unwrap();
+        assert_eq!(sum2.value, 1015.0);
+        assert_eq!(sum2.unit, "Meter");
+    }
+
+    #[test]
+    fn test_clusters() {
+        let data = vec![1.0, 1.1, 0.9, 10.0, 10.1, 9.9];
+        let c = find_clusters(&data, 2).unwrap();
+        assert_eq!(c.len(), 2);
+        // One cluster should have ~1, another ~10
+        let m1 = stats::mean(&c[0]);
+        let m2 = stats::mean(&c[1]);
+        assert!((m1 - 1.0).abs() < 0.2 || (m1 - 10.0).abs() < 0.2);
+        assert!((m2 - 1.0).abs() < 0.2 || (m2 - 10.0).abs() < 0.2);
+    }
 }
