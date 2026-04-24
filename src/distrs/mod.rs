@@ -54,9 +54,11 @@ pub mod student_t;
 pub mod cauchy;
 pub mod laplace;
 pub mod logistic;
+pub mod poisson;
 
 pub use normal::*;
 pub use student_t::*;
 pub use cauchy::*;
 pub use laplace::*;
 pub use logistic::*;
+pub use poisson::*;

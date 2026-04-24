@@ -3,6 +3,7 @@ pub mod hypo_tests;
 pub mod pipeline;
 pub mod stats;
 pub mod plotting;
+pub mod models;
 #[cfg(test)]
 mod tests_verification;
 
@@ -11,3 +12,4 @@ pub use hypo_tests::*;
 pub use pipeline::*;
 pub use stats::*;
 pub use plotting::*;
+pub use models::*;
