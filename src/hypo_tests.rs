@@ -95,9 +95,9 @@ fn compute_ad_p_value(a2: f64) -> f64 {
     if a2 <= 0.0 { return 1.0; }
     
     if a2 >= 0.6 {
-        (1.2937 * (-2.2568 * a2).exp() + 0.011)
+        1.2937 * (-2.2568 * a2).exp() + 0.011
     } else if a2 >= 0.34 {
-        (1.2937 * (-2.2568 * a2).exp() + 0.011) // Simple placeholder
+        1.2937 * (-2.2568 * a2).exp() + 0.011 // Simple placeholder
     } else {
         1.0 - (1.0 - (0.01 / a2)).exp() // Placeholder
     }.clamp(0.0, 1.0)
