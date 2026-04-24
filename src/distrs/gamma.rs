@@ -1,0 +1,84 @@
+use crate::distrs::{FittedDistribution, DistributionFit};
+use anyhow::Result;
+use statrs::distribution::{Gamma, Continuous, ContinuousCDF};
+use argmin::core::{CostFunction, Error, Executor, State};
+use argmin::solver::neldermead::NelderMead;
+
+pub struct FittedGamma {
+    pub shape: f64,
+    pub scale: f64,
+}
+
+impl FittedDistribution for FittedGamma {
+    fn name(&self) -> &'static str { "Gamma" }
+    fn params(&self) -> Vec<f64> { vec![self.shape, self.scale] }
+    fn pdf(&self, x: f64) -> f64 {
+        if x <= 0.0 { return 0.0; }
+        let g = Gamma::new(self.shape, 1.0 / self.scale).unwrap();
+        g.pdf(x)
+    }
+    fn cdf(&self, x: f64) -> f64 {
+        if x <= 0.0 { return 0.0; }
+        let g = Gamma::new(self.shape, 1.0 / self.scale).unwrap();
+        g.cdf(x)
+    }
+    fn inv_cdf(&self, p: f64) -> f64 {
+        let g = Gamma::new(self.shape, 1.0 / self.scale).unwrap();
+        g.inverse_cdf(p)
+    }
+}
+
+struct GammaMLECost<'a> {
+    data: &'a [f64],
+}
+
+impl<'a> CostFunction for GammaMLECost<'a> {
+    type Param = Vec<f64>; // [shape, scale]
+    type Output = f64;
+
+    fn cost(&self, p: &Self::Param) -> Result<Self::Output, Error> {
+        let shape = p[0];
+        let scale = p[1];
+        if shape <= 0.0 || scale <= 0.0 { return Ok(f64::INFINITY); }
+        
+        let n = self.data.len() as f64;
+        let sum_ln_x: f64 = self.data.iter().map(|&x| x.ln()).sum();
+        let sum_x: f64 = self.data.iter().sum();
+        
+        // Negative log-likelihood
+        // ln(L) = (k-1) sum(ln x) - sum(x)/theta - n ln(Gamma(k)) - nk ln(theta)
+        let ln_l = (shape - 1.0) * sum_ln_x - (sum_x / scale) - n * statrs::generate_float::ln_gamma(shape) - n * shape * scale.ln();
+        Ok(-ln_l)
+    }
+}
+
+pub struct GammaFit;
+
+impl DistributionFit for GammaFit {
+    type Fitted = FittedGamma;
+
+    fn fit(data: &[f64]) -> Result<Self::Fitted> {
+        let n = data.len() as f64;
+        let m = crate::stats::mean(data);
+        let v = crate::stats::variance(data);
+        
+        // Initial guess using method of moments:
+        // m = k*theta, v = k*theta^2 => theta = v/m, k = m^2/v
+        let initial_scale = v / m;
+        let initial_shape = m * m / v;
+        
+        let cost = GammaMLECost { data };
+        let solver = NelderMead::new(vec![
+            vec![initial_shape, initial_scale],
+            vec![initial_shape * 1.1, initial_scale],
+            vec![initial_shape, initial_scale * 1.1],
+        ]);
+
+        let res = Executor::new(cost, solver)
+            .configure(|state| state.max_iters(1000).target_cost(0.0))
+            .run()?;
+
+        let best_params = res.state().get_best_param().unwrap();
+        Ok(FittedGamma { shape: best_params[0], scale: best_params[1] })
+    }
+}
