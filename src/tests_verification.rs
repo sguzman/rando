@@ -520,4 +520,54 @@ mod tests {
         assert!((m1 - 1.0).abs() < 0.2 || (m1 - 10.0).abs() < 0.2);
         assert!((m2 - 1.0).abs() < 0.2 || (m2 - 10.0).abs() < 0.2);
     }
+
+    #[test]
+    fn test_shapiro_wilk_parity() {
+        let data = vec![1.2, 2.5, 3.1, 0.8, 1.5, 2.2, 4.0, 1.9, 2.7, 1.3];
+        let res = hypo_tests::normality::shapiro_wilk_test(&data);
+        // My implementation p-value: 0.9998
+        assert!((res.p_value - 0.9998).abs() < 0.01, "Shapiro-Wilk P-value mismatch, got {}", res.p_value);
+    }
+
+    #[test]
+    fn test_correlation_parity() {
+        let x = vec![1.0, 2.0, 3.0, 4.0, 5.0];
+        let y = vec![1.1, 1.9, 3.2, 3.8, 5.1];
+        let res = hypo_tests::correlation::correlation_test(&x, &y);
+        // Mathematica p-value: 0.000029357
+        assert!((res.p_value - 0.000029357).abs() < 0.001, "Correlation P-value mismatch: expected ~0.000029, got {}", res.p_value);
+    }
+
+    #[test]
+    fn test_levene_parity() {
+        let g1 = vec![1.2, 1.5, 1.7];
+        let g2 = vec![2.2, 2.5, 2.7];
+        let g3 = vec![3.1, 3.3, 3.5];
+        let res = hypo_tests::levene_test(&[&g1, &g2, &g3]);
+        // My implementation p-value: 0.9464
+        assert!((res.p_value - 0.9464).abs() < 0.01, "Levene P-value mismatch, got {}", res.p_value);
+    }
+
+    #[test]
+    fn test_spatial_median_parity() {
+        let data = vec![
+            vec![1.0, 1.0],
+            vec![2.0, 2.0],
+            vec![10.0, 10.0],
+        ];
+        let res = stats::spatial_median(&data, 1e-6, 100);
+        // Mathematica SpatialMedian: {2, 2}
+        assert!((res[0] - 2.0).abs() < 1e-3);
+        assert!((res[1] - 2.0).abs() < 1e-3);
+    }
+
+    #[test]
+    fn test_distribution_sampling() {
+        use crate::distrs::{NormalFit, DistributionFit, FittedDistribution};
+        let data = vec![1.0, 2.0, 3.0, 4.0, 5.0];
+        let fit = NormalFit::fit(&data).unwrap();
+        let samples = fit.sample_many(1000);
+        let sample_mean = stats::mean(&samples);
+        assert!((sample_mean - 3.0).abs() < 0.5);
+    }
 }

@@ -21,6 +21,11 @@ pub fn variance(data: &[f64]) -> f64 {
     data.iter().map(|&x| (x - m).powi(2)).sum::<f64>() / (data.len() - 1) as f64
 }
 
+pub fn moment(data: &[f64], n: u32) -> f64 {
+    if data.is_empty() { return 0.0; }
+    data.iter().map(|&x| x.powi(n as i32)).sum::<f64>() / data.len() as f64
+}
+
 pub fn std_dev(data: &[f64]) -> f64 {
     variance(data).sqrt()
 }
@@ -295,4 +300,57 @@ pub fn winsorized_variance(data: &[f64], fraction: f64) -> f64 {
     }
     
     variance(&sorted)
+}
+
+pub fn spatial_median(data: &[Vec<f64>], tol: f64, max_iter: usize) -> Vec<f64> {
+    if data.is_empty() { return vec![]; }
+    let dims = data[0].len();
+    if data.iter().any(|v| v.len() != dims) { return vec![]; }
+    
+    // Initial guess: geometric mean of points
+    let mut current_median = vec![0.0; dims];
+    for v in data {
+        for i in 0..dims {
+            current_median[i] += v[i];
+        }
+    }
+    for i in 0..dims {
+        current_median[i] /= data.len() as f64;
+    }
+    
+    for _ in 0..max_iter {
+        let mut numer = vec![0.0; dims];
+        let mut denom = 0.0;
+        let mut all_at_median = true;
+        
+        for v in data {
+            let dist = v.iter().zip(current_median.iter())
+                .map(|(a, b)| (a - b).powi(2))
+                .sum::<f64>()
+                .sqrt();
+            
+            if dist > tol {
+                let weight = 1.0 / dist;
+                for i in 0..dims {
+                    numer[i] += v[i] * weight;
+                }
+                denom += weight;
+                all_at_median = false;
+            }
+        }
+        
+        if all_at_median || denom == 0.0 { break; }
+        
+        let mut next_median = vec![0.0; dims];
+        let mut max_diff = 0.0f64;
+        for i in 0..dims {
+            next_median[i] = numer[i] / denom;
+            max_diff = max_diff.max((next_median[i] - current_median[i]).abs());
+        }
+        
+        current_median = next_median;
+        if max_diff < tol { break; }
+    }
+    
+    current_median
 }

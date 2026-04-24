@@ -1,5 +1,7 @@
 pub mod t_test;
 pub mod z_test;
+pub mod normality;
+pub mod correlation;
 
 use crate::distrs::FittedDistribution;
 use anyhow::Result;
@@ -48,6 +50,59 @@ pub fn pearson_chi_square_test(observed: &[f64], expected: &[f64]) -> TestResult
     let df = (observed.len() - 1) as f64;
     let chi2 = ChiSquared::new(df).unwrap();
     let p_value = 1.0 - chi2.cdf(statistic);
+    TestResult { statistic, p_value }
+}
+
+pub fn variance_test(data: &[f64], sigma0_sq: f64) -> TestResult {
+    let n = data.len() as f64;
+    if n < 2.0 { return TestResult { statistic: 0.0, p_value: 1.0 }; }
+    let s_sq = crate::stats::variance(data);
+    let statistic = (n - 1.0) * s_sq / sigma0_sq;
+    let chi2 = ChiSquared::new(n - 1.0).unwrap();
+    // Two-sided test
+    let p1 = chi2.cdf(statistic);
+    let p2 = 1.0 - p1;
+    let p_value = 2.0 * p1.min(p2);
+    TestResult { statistic, p_value }
+}
+
+pub fn levene_test(groups: &[&[f64]]) -> TestResult {
+    // Levene's test using absolute deviations from the median (Brown-Forsythe)
+    let k = groups.len() as f64;
+    let mut n_total = 0.0;
+    let mut z_groups = Vec::new();
+    for g in groups {
+        let med = crate::stats::median(g);
+        let zg: Vec<f64> = g.iter().map(|&x| (x - med).abs()).collect();
+        n_total += g.len() as f64;
+        z_groups.push(zg);
+    }
+    
+    let z_flat: Vec<f64> = z_groups.iter().flatten().cloned().collect();
+    let z_grand_mean = crate::stats::mean(&z_flat);
+    
+    let mut numer = 0.0;
+    for zg in &z_groups {
+        let group_mean = crate::stats::mean(zg);
+        numer += zg.len() as f64 * (group_mean - z_grand_mean).powi(2);
+    }
+    numer *= n_total - k;
+    
+    let mut denom = 0.0;
+    for zg in &z_groups {
+        let group_mean = crate::stats::mean(zg);
+        for &z in zg {
+            denom += (z - group_mean).powi(2);
+        }
+    }
+    denom *= k - 1.0;
+    
+    let statistic = if denom == 0.0 { 0.0 } else { numer / denom };
+    
+    use statrs::distribution::FisherSnedecor;
+    let f_dist = FisherSnedecor::new(k - 1.0, n_total - k).unwrap();
+    let p_value = 1.0 - f_dist.cdf(statistic);
+    
     TestResult { statistic, p_value }
 }
 

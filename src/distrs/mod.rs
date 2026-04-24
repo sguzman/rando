@@ -21,6 +21,16 @@ pub trait FittedDistribution {
     
     /// Inverse CDF (Quantile function).
     fn inv_cdf(&self, p: f64) -> f64;
+    
+    /// Sample a single value from the distribution.
+    fn sample(&self) -> f64 {
+        self.inv_cdf(rand::random::<f64>())
+    }
+
+    /// Sample multiple values from the distribution.
+    fn sample_many(&self, n: usize) -> Vec<f64> {
+        (0..n).map(|_| self.sample()).collect()
+    }
 
     /// Log-likelihood of the data given this distribution.
     fn log_likelihood(&self, xs: &[f64]) -> f64 {
