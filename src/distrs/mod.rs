@@ -55,6 +55,8 @@ pub mod cauchy;
 pub mod laplace;
 pub mod logistic;
 pub mod poisson;
+pub mod gamma;
+pub mod negative_binomial;
 
 pub use normal::*;
 pub use student_t::*;
@@ -62,3 +64,123 @@ pub use cauchy::*;
 pub use laplace::*;
 pub use logistic::*;
 pub use poisson::*;
+pub use gamma::*;
+pub use negative_binomial::*;
+
+/// A container for any fitted distribution
+pub enum FittedDistributionBox {
+    Normal(FittedNormal),
+    StudentT(FittedStudentT),
+    Cauchy(FittedCauchy),
+    Laplace(FittedLaplace),
+    Logistic(FittedLogistic),
+    Poisson(FittedPoisson),
+    Gamma(FittedGamma),
+    NegativeBinomial(FittedNegativeBinomial),
+}
+
+impl FittedDistribution for FittedDistributionBox {
+    fn name(&self) -> &'static str {
+        match self {
+            Self::Normal(d) => d.name(),
+            Self::StudentT(d) => d.name(),
+            Self::Cauchy(d) => d.name(),
+            Self::Laplace(d) => d.name(),
+            Self::Logistic(d) => d.name(),
+            Self::Poisson(d) => d.name(),
+            Self::Gamma(d) => d.name(),
+            Self::NegativeBinomial(d) => d.name(),
+        }
+    }
+    fn params(&self) -> Vec<f64> {
+        match self {
+            Self::Normal(d) => d.params(),
+            Self::StudentT(d) => d.params(),
+            Self::Cauchy(d) => d.params(),
+            Self::Laplace(d) => d.params(),
+            Self::Logistic(d) => d.params(),
+            Self::Poisson(d) => d.params(),
+            Self::Gamma(d) => d.params(),
+            Self::NegativeBinomial(d) => d.params(),
+        }
+    }
+    fn pdf(&self, x: f64) -> f64 {
+        match self {
+            Self::Normal(d) => d.pdf(x),
+            Self::StudentT(d) => d.pdf(x),
+            Self::Cauchy(d) => d.pdf(x),
+            Self::Laplace(d) => d.pdf(x),
+            Self::Logistic(d) => d.pdf(x),
+            Self::Poisson(d) => d.pdf(x),
+            Self::Gamma(d) => d.pdf(x),
+            Self::NegativeBinomial(d) => d.pdf(x),
+        }
+    }
+    fn cdf(&self, x: f64) -> f64 {
+        match self {
+            Self::Normal(d) => d.cdf(x),
+            Self::StudentT(d) => d.cdf(x),
+            Self::Cauchy(d) => d.cdf(x),
+            Self::Laplace(d) => d.cdf(x),
+            Self::Logistic(d) => d.cdf(x),
+            Self::Poisson(d) => d.cdf(x),
+            Self::Gamma(d) => d.cdf(x),
+            Self::NegativeBinomial(d) => d.cdf(x),
+        }
+    }
+    fn inv_cdf(&self, p: f64) -> f64 {
+        match self {
+            Self::Normal(d) => d.inv_cdf(p),
+            Self::StudentT(d) => d.inv_cdf(p),
+            Self::Cauchy(d) => d.inv_cdf(p),
+            Self::Laplace(d) => d.inv_cdf(p),
+            Self::Logistic(d) => d.inv_cdf(p),
+            Self::Poisson(d) => d.inv_cdf(p),
+            Self::Gamma(d) => d.inv_cdf(p),
+            Self::NegativeBinomial(d) => d.inv_cdf(p),
+        }
+    }
+}
+
+/// Finds the distribution that best fits the data based on AIC.
+pub fn find_distribution(data: &[f64]) -> Result<FittedDistributionBox> {
+    let mut best_aic = f64::INFINITY;
+    let mut best_fit: Option<FittedDistributionBox> = None;
+
+    macro_rules! try_fit {
+        ($fit_type:ident, $variant:ident) => {
+            if let Ok(fit) = $fit_type::fit(data) {
+                let aic = fit.aic(data);
+                if aic < best_aic {
+                    best_aic = aic;
+                    best_fit = Some(FittedDistributionBox::$variant(fit));
+                }
+            }
+        };
+    }
+
+    // Try discrete distributions if data is non-negative integers
+    let is_discrete = data.iter().all(|&x| x >= 0.0 && x.floor() == x);
+    if is_discrete {
+        try_fit!(PoissonFit, Poisson);
+        try_fit!(NegativeBinomialFit, NegativeBinomial);
+        
+        // If we found a good discrete fit, we might want to return it immediately
+        // or at least prioritize it. For now, let's just return the best discrete fit if one exists.
+        if let Some(fit) = best_fit {
+            return Ok(fit);
+        }
+    }
+
+    // Try continuous distributions
+    try_fit!(NormalFit, Normal);
+    try_fit!(StudentTFit, StudentT);
+    try_fit!(CauchyFit, Cauchy);
+    try_fit!(LaplaceFit, Laplace);
+    try_fit!(LogisticFit, Logistic);
+    try_fit!(GammaFit, Gamma);
+    
+    let _ = best_aic;
+
+    best_fit.ok_or_else(|| anyhow::anyhow!("Could not fit any distribution to the data"))
+}

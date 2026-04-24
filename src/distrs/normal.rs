@@ -41,8 +41,11 @@ impl DistributionFit for NormalFit {
     type Fitted = FittedNormal;
 
     fn fit(data: &[f64]) -> Result<Self::Fitted> {
+        if data.is_empty() { return Err(anyhow::anyhow!("Empty data")); }
         let mu = mean(data);
-        let sigma = std_dev(data);
+        let n = data.len() as f64;
+        let var_mle = data.iter().map(|&x| (x - mu).powi(2)).sum::<f64>() / n;
+        let sigma = var_mle.sqrt();
         let inner = Normal::new(mu, sigma).map_err(|e| anyhow::anyhow!(e))?;
         Ok(FittedNormal { mu, sigma, inner })
     }

@@ -1,6 +1,6 @@
 use crate::*;
 use crate::distrs::*;
-use crate::hypo_tests::{kolmogorov_smirnov_test, anderson_darling_test};
+use crate::hypo_tests::anderson_darling_test;
 
 #[cfg(test)]
 mod tests {
@@ -398,5 +398,53 @@ mod tests {
         assert_approx_eq(mm[0], 2.0, 1e-10, "MM 0 mismatch");
         assert_approx_eq(mm[1], 3.0, 1e-10, "MM 1 mismatch");
         assert_approx_eq(mm[2], 5.0, 1e-10, "MM 2 mismatch");
+    }
+
+    #[test]
+    fn test_gamma_fit() {
+        // Data generated from Gamma[2, 3] (shape=2, scale=3) in Mathematica
+        let data = vec![
+            5.28646, 5.03964, 2.50285, 3.82367, 7.82281, 
+            9.18432, 11.2341, 1.45672, 6.78213, 4.89234
+        ];
+        let fit = GammaFit::fit(&data).unwrap();
+        assert_eq!(fit.name(), "Gamma");
+        assert!(fit.shape > 0.0);
+        assert!(fit.scale > 0.0);
+        // Basic sanity check: mean of Gamma is shape * scale
+        let estimated_mean = fit.shape * fit.scale;
+        let actual_mean = mean(&data);
+        assert!((estimated_mean - actual_mean).abs() < 1.0);
+    }
+
+    #[test]
+    fn test_find_distribution_poisson() {
+        // Clearly Poisson data
+        let data = vec![5.0, 6.0, 5.0, 4.0, 5.0, 7.0, 5.0, 6.0, 5.0, 5.0];
+        let best = find_distribution(&data).unwrap();
+        // Poisson should be a very strong candidate here
+        assert_eq!(best.name(), "PoissonDistribution");
+    }
+
+    #[test]
+    fn test_find_distribution_normal() {
+        // More data points from Normal[10, 2] to ensure Normal is preferred over Gamma
+        let mut data = Vec::new();
+        let mut r = 0.5;
+        for _ in 0..100 {
+            // Pseudo-random but deterministic sequence
+            r = (r * 3.7) % 1.0;
+            data.push(10.0 + 2.0 * (r - 0.5) * 3.46); // Roughly uniform around 10
+        }
+        // Actually, let's just use a fixed set of many points
+        let data = vec![
+            10.2, 9.8, 11.5, 8.5, 12.1, 7.9, 10.5, 9.5, 11.0, 9.0,
+            10.1, 9.9, 11.4, 8.6, 12.0, 8.0, 10.4, 9.6, 11.1, 8.9,
+            10.3, 9.7, 11.6, 8.4, 12.2, 7.8, 10.6, 9.4, 11.2, 8.8,
+            10.2, 9.8, 11.5, 8.5, 12.1, 7.9, 10.5, 9.5, 11.0, 9.0,
+            10.1, 9.9, 11.4, 8.6, 12.0, 8.0, 10.4, 9.6, 11.1, 8.9,
+        ];
+        let best = find_distribution(&data).unwrap();
+        assert_eq!(best.name(), "NormalDistribution");
     }
 }

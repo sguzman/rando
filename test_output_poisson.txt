@@ -1,0 +1,126 @@
+[1m[33mwarning[0m[1m: unused variable: `n`[0m
+  [1m[94m--> [0msrc/distrs/gamma.rs:64:13
+   [1m[94m|[0m
+[1m[94m64[0m [1m[94m|[0m         let n = data.len() as f64;
+   [1m[94m|[0m             [1m[33m^[0m [1m[33mhelp: if this is intentional, prefix it with an underscore: `_n`[0m
+   [1m[94m|[0m
+   [1m[94m= [0m[1mnote[0m: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+[1m[33mwarning[0m[1m: value assigned to `best_aic` is never read[0m
+   [1m[94m--> [0msrc/distrs/mod.rs:155:21
+    [1m[94m|[0m
+[1m[94m155[0m [1m[94m|[0m                     best_aic = aic;
+    [1m[94m|[0m                     [1m[33m^^^^^^^^^^^^^^[0m
+[1m[94m...[0m
+[1m[94m174[0m [1m[94m|[0m         try_fit!(NegativeBinomialFit, NegativeBinomial);
+    [1m[94m|[0m         [1m[94m-----------------------------------------------[0m [1m[94min this macro invocation[0m
+    [1m[94m|[0m
+    [1m[94m= [0m[1mhelp[0m: maybe it is overwritten before being read?
+    [1m[94m= [0m[1mnote[0m: `#[warn(unused_assignments)]` (part of `#[warn(unused)]`) on by default
+    [1m[94m= [0m[1mnote[0m: this warning originates in the macro `try_fit` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+[1m[33mwarning[0m: `rando` (lib test) generated 2 warnings (run `cargo fix --lib -p rando --tests` to apply 1 suggestion)
+[1m[92m    Finished[0m ]8;;https://doc.rust-lang.org/cargo/reference/profiles.html#default-profiles\`test` profile [unoptimized + debuginfo]]8;;\ target(s) in 0.05s
+[1m[92m     Running[0m unittests src/lib.rs (target/debug/deps/rando-d3d9180b37c33b91)
+
+running 1 test
+
+thread 'tests_verification::tests::test_find_distribution_poisson' (1355894) panicked at src/tests_verification.rs:426:9:
+assertion `left == right` failed
+  left: "StudentTDistribution"
+ right: "PoissonDistribution"
+stack backtrace:
+   0:     0x55dc2d31ea9a - std[e28293b1aa0f68bd]::backtrace_rs::backtrace::libunwind::trace
+                               at /rustc/59807616e1fa2540724bfbac14d7976d7e4a3860/library/std/src/../../backtrace/src/backtrace/libunwind.rs:117:9
+   1:     0x55dc2d31ea9a - std[e28293b1aa0f68bd]::backtrace_rs::backtrace::trace_unsynchronized::<std[e28293b1aa0f68bd]::sys::backtrace::_print_fmt::{closure#1}>
+                               at /rustc/59807616e1fa2540724bfbac14d7976d7e4a3860/library/std/src/../../backtrace/src/backtrace/mod.rs:66:14
+   2:     0x55dc2d31ea9a - std[e28293b1aa0f68bd]::sys::backtrace::_print_fmt
+                               at /rustc/59807616e1fa2540724bfbac14d7976d7e4a3860/library/std/src/sys/backtrace.rs:74:9
+   3:     0x55dc2d31ea9a - <<std[e28293b1aa0f68bd]::sys::backtrace::BacktraceLock>::print::DisplayBacktrace as core[c1f1a4ba060b9bfa]::fmt::Display>::fmt
+                               at /rustc/59807616e1fa2540724bfbac14d7976d7e4a3860/library/std/src/sys/backtrace.rs:44:26
+   4:     0x55dc2d33308a - <core[c1f1a4ba060b9bfa]::fmt::rt::Argument>::fmt
+                               at /rustc/59807616e1fa2540724bfbac14d7976d7e4a3860/library/core/src/fmt/rt.rs:152:76
+   5:     0x55dc2d33308a - core[c1f1a4ba060b9bfa]::fmt::write
+   6:     0x55dc2d324342 - std[e28293b1aa0f68bd]::io::default_write_fmt::<std[e28293b1aa0f68bd]::sys::stdio::unix::Stderr>
+                               at /rustc/59807616e1fa2540724bfbac14d7976d7e4a3860/library/std/src/io/mod.rs:639:11
+   7:     0x55dc2d324342 - <std[e28293b1aa0f68bd]::sys::stdio::unix::Stderr as std[e28293b1aa0f68bd]::io::Write>::write_fmt
+                               at /rustc/59807616e1fa2540724bfbac14d7976d7e4a3860/library/std/src/io/mod.rs:1994:13
+   8:     0x55dc2d2fd89f - <std[e28293b1aa0f68bd]::sys::backtrace::BacktraceLock>::print
+                               at /rustc/59807616e1fa2540724bfbac14d7976d7e4a3860/library/std/src/sys/backtrace.rs:47:9
+   9:     0x55dc2d2fd89f - std[e28293b1aa0f68bd]::panicking::default_hook::{closure#0}
+                               at /rustc/59807616e1fa2540724bfbac14d7976d7e4a3860/library/std/src/panicking.rs:292:27
+  10:     0x55dc2d316fb1 - std[e28293b1aa0f68bd]::panicking::default_hook
+                               at /rustc/59807616e1fa2540724bfbac14d7976d7e4a3860/library/std/src/panicking.rs:319:9
+  11:     0x55dc2d31716b - std[e28293b1aa0f68bd]::panicking::panic_with_hook
+                               at /rustc/59807616e1fa2540724bfbac14d7976d7e4a3860/library/std/src/panicking.rs:825:13
+  12:     0x55dc2d2fd958 - std[e28293b1aa0f68bd]::panicking::panic_handler::{closure#0}
+                               at /rustc/59807616e1fa2540724bfbac14d7976d7e4a3860/library/std/src/panicking.rs:698:13
+  13:     0x55dc2d2f4d99 - std[e28293b1aa0f68bd]::sys::backtrace::__rust_end_short_backtrace::<std[e28293b1aa0f68bd]::panicking::panic_handler::{closure#0}, !>
+                               at /rustc/59807616e1fa2540724bfbac14d7976d7e4a3860/library/std/src/sys/backtrace.rs:182:18
+  14:     0x55dc2d2fe75d - __rustc[b7974e8690430dd9]::rust_begin_unwind
+                               at /rustc/59807616e1fa2540724bfbac14d7976d7e4a3860/library/std/src/panicking.rs:689:5
+  15:     0x55dc2d3338fc - core[c1f1a4ba060b9bfa]::panicking::panic_fmt
+                               at /rustc/59807616e1fa2540724bfbac14d7976d7e4a3860/library/core/src/panicking.rs:80:14
+  16:     0x55dc2d3337b3 - core[c1f1a4ba060b9bfa]::panicking::assert_failed_inner
+                               at /rustc/59807616e1fa2540724bfbac14d7976d7e4a3860/library/core/src/panicking.rs:439:17
+  17:     0x55dc2d222df9 - core::panicking::assert_failed::h6eedb4a292868967
+                               at /home/admin/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/core/src/panicking.rs:394:5
+  18:     0x55dc2d21af62 - rando::tests_verification::tests::test_find_distribution_poisson::he33bcc3d3b84bc9e
+                               at /win/linux/Code/rust/rando/src/tests_verification.rs:426:9
+  19:     0x55dc2d223197 - rando::tests_verification::tests::test_find_distribution_poisson::{{closure}}::hd2d5ba934ce14387
+                               at /win/linux/Code/rust/rando/src/tests_verification.rs:421:40
+  20:     0x55dc2d23e8f6 - core::ops::function::FnOnce::call_once::hf408b41b0ce1a2a4
+                               at /home/admin/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/core/src/ops/function.rs:250:5
+  21:     0x55dc2d28b9cb - <fn() -> core[c1f1a4ba060b9bfa]::result::Result<(), alloc[fdfd2bd8633a6659]::string::String> as core[c1f1a4ba060b9bfa]::ops::function::FnOnce<()>>::call_once
+                               at /rustc/59807616e1fa2540724bfbac14d7976d7e4a3860/library/core/src/ops/function.rs:250:5
+  22:     0x55dc2d28b9cb - test[273d7611820c9051]::__rust_begin_short_backtrace::<core[c1f1a4ba060b9bfa]::result::Result<(), alloc[fdfd2bd8633a6659]::string::String>, fn() -> core[c1f1a4ba060b9bfa]::result::Result<(), alloc[fdfd2bd8633a6659]::string::String>>
+                               at /rustc/59807616e1fa2540724bfbac14d7976d7e4a3860/library/test/src/lib.rs:663:18
+  23:     0x55dc2d2983bb - test[273d7611820c9051]::run_test_in_process::{closure#0}
+                               at /rustc/59807616e1fa2540724bfbac14d7976d7e4a3860/library/test/src/lib.rs:686:74
+  24:     0x55dc2d2983bb - <core[c1f1a4ba060b9bfa]::panic::unwind_safe::AssertUnwindSafe<test[273d7611820c9051]::run_test_in_process::{closure#0}> as core[c1f1a4ba060b9bfa]::ops::function::FnOnce<()>>::call_once
+                               at /rustc/59807616e1fa2540724bfbac14d7976d7e4a3860/library/core/src/panic/unwind_safe.rs:274:9
+  25:     0x55dc2d2983bb - std[e28293b1aa0f68bd]::panicking::catch_unwind::do_call::<core[c1f1a4ba060b9bfa]::panic::unwind_safe::AssertUnwindSafe<test[273d7611820c9051]::run_test_in_process::{closure#0}>, core[c1f1a4ba060b9bfa]::result::Result<(), alloc[fdfd2bd8633a6659]::string::String>>
+                               at /rustc/59807616e1fa2540724bfbac14d7976d7e4a3860/library/std/src/panicking.rs:581:40
+  26:     0x55dc2d2983bb - std[e28293b1aa0f68bd]::panicking::catch_unwind::<core[c1f1a4ba060b9bfa]::result::Result<(), alloc[fdfd2bd8633a6659]::string::String>, core[c1f1a4ba060b9bfa]::panic::unwind_safe::AssertUnwindSafe<test[273d7611820c9051]::run_test_in_process::{closure#0}>>
+                               at /rustc/59807616e1fa2540724bfbac14d7976d7e4a3860/library/std/src/panicking.rs:544:19
+  27:     0x55dc2d2983bb - std[e28293b1aa0f68bd]::panic::catch_unwind::<core[c1f1a4ba060b9bfa]::panic::unwind_safe::AssertUnwindSafe<test[273d7611820c9051]::run_test_in_process::{closure#0}>, core[c1f1a4ba060b9bfa]::result::Result<(), alloc[fdfd2bd8633a6659]::string::String>>
+                               at /rustc/59807616e1fa2540724bfbac14d7976d7e4a3860/library/std/src/panic.rs:359:14
+  28:     0x55dc2d2983bb - test[273d7611820c9051]::run_test_in_process
+                               at /rustc/59807616e1fa2540724bfbac14d7976d7e4a3860/library/test/src/lib.rs:686:27
+  29:     0x55dc2d2983bb - test[273d7611820c9051]::run_test::{closure#0}
+                               at /rustc/59807616e1fa2540724bfbac14d7976d7e4a3860/library/test/src/lib.rs:607:43
+  30:     0x55dc2d293ad4 - test[273d7611820c9051]::run_test::{closure#1}
+                               at /rustc/59807616e1fa2540724bfbac14d7976d7e4a3860/library/test/src/lib.rs:637:41
+  31:     0x55dc2d293ad4 - std[e28293b1aa0f68bd]::sys::backtrace::__rust_begin_short_backtrace::<test[273d7611820c9051]::run_test::{closure#1}, ()>
+                               at /rustc/59807616e1fa2540724bfbac14d7976d7e4a3860/library/std/src/sys/backtrace.rs:166:18
+  32:     0x55dc2d29afc2 - std[e28293b1aa0f68bd]::thread::lifecycle::spawn_unchecked::<test[273d7611820c9051]::run_test::{closure#1}, ()>::{closure#1}::{closure#0}
+                               at /rustc/59807616e1fa2540724bfbac14d7976d7e4a3860/library/std/src/thread/lifecycle.rs:91:13
+  33:     0x55dc2d29afc2 - <core[c1f1a4ba060b9bfa]::panic::unwind_safe::AssertUnwindSafe<std[e28293b1aa0f68bd]::thread::lifecycle::spawn_unchecked<test[273d7611820c9051]::run_test::{closure#1}, ()>::{closure#1}::{closure#0}> as core[c1f1a4ba060b9bfa]::ops::function::FnOnce<()>>::call_once
+                               at /rustc/59807616e1fa2540724bfbac14d7976d7e4a3860/library/core/src/panic/unwind_safe.rs:274:9
+  34:     0x55dc2d29afc2 - std[e28293b1aa0f68bd]::panicking::catch_unwind::do_call::<core[c1f1a4ba060b9bfa]::panic::unwind_safe::AssertUnwindSafe<std[e28293b1aa0f68bd]::thread::lifecycle::spawn_unchecked<test[273d7611820c9051]::run_test::{closure#1}, ()>::{closure#1}::{closure#0}>, ()>
+                               at /rustc/59807616e1fa2540724bfbac14d7976d7e4a3860/library/std/src/panicking.rs:581:40
+  35:     0x55dc2d29afc2 - std[e28293b1aa0f68bd]::panicking::catch_unwind::<(), core[c1f1a4ba060b9bfa]::panic::unwind_safe::AssertUnwindSafe<std[e28293b1aa0f68bd]::thread::lifecycle::spawn_unchecked<test[273d7611820c9051]::run_test::{closure#1}, ()>::{closure#1}::{closure#0}>>
+                               at /rustc/59807616e1fa2540724bfbac14d7976d7e4a3860/library/std/src/panicking.rs:544:19
+  36:     0x55dc2d29afc2 - std[e28293b1aa0f68bd]::panic::catch_unwind::<core[c1f1a4ba060b9bfa]::panic::unwind_safe::AssertUnwindSafe<std[e28293b1aa0f68bd]::thread::lifecycle::spawn_unchecked<test[273d7611820c9051]::run_test::{closure#1}, ()>::{closure#1}::{closure#0}>, ()>
+                               at /rustc/59807616e1fa2540724bfbac14d7976d7e4a3860/library/std/src/panic.rs:359:14
+  37:     0x55dc2d29afc2 - std[e28293b1aa0f68bd]::thread::lifecycle::spawn_unchecked::<test[273d7611820c9051]::run_test::{closure#1}, ()>::{closure#1}
+                               at /rustc/59807616e1fa2540724bfbac14d7976d7e4a3860/library/std/src/thread/lifecycle.rs:89:26
+  38:     0x55dc2d29afc2 - <std[e28293b1aa0f68bd]::thread::lifecycle::spawn_unchecked<test[273d7611820c9051]::run_test::{closure#1}, ()>::{closure#1} as core[c1f1a4ba060b9bfa]::ops::function::FnOnce<()>>::call_once::{shim:vtable#0}
+                               at /rustc/59807616e1fa2540724bfbac14d7976d7e4a3860/library/core/src/ops/function.rs:250:5
+  39:     0x55dc2d31e3af - <alloc[fdfd2bd8633a6659]::boxed::Box<dyn core[c1f1a4ba060b9bfa]::ops::function::FnOnce<(), Output = ()> + core[c1f1a4ba060b9bfa]::marker::Send> as core[c1f1a4ba060b9bfa]::ops::function::FnOnce<()>>::call_once
+                               at /rustc/59807616e1fa2540724bfbac14d7976d7e4a3860/library/alloc/src/boxed.rs:2240:9
+  40:     0x55dc2d31e3af - <std[e28293b1aa0f68bd]::sys::thread::unix::Thread>::new::thread_start
+                               at /rustc/59807616e1fa2540724bfbac14d7976d7e4a3860/library/std/src/sys/thread/unix.rs:118:17
+  41:     0x7fab8be0a97a - <unknown>
+  42:     0x7fab8be8e2bc - <unknown>
+  43:                0x0 - <unknown>
+test tests_verification::tests::test_find_distribution_poisson ... FAILED
+
+failures:
+
+failures:
+    tests_verification::tests::test_find_distribution_poisson
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 14 filtered out; finished in 0.04s
+
+[1m[91merror[0m: test failed, to rerun pass `--lib`

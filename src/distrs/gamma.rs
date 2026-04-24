@@ -41,14 +41,17 @@ impl<'a> CostFunction for GammaMLECost<'a> {
         let scale = p[1];
         if shape <= 0.0 || scale <= 0.0 { return Ok(f64::INFINITY); }
         
-        let n = self.data.len() as f64;
-        let sum_ln_x: f64 = self.data.iter().map(|&x| x.ln()).sum();
-        let sum_x: f64 = self.data.iter().sum();
-        
-        // Negative log-likelihood
-        // ln(L) = (k-1) sum(ln x) - sum(x)/theta - n ln(Gamma(k)) - nk ln(theta)
-        let ln_l = (shape - 1.0) * sum_ln_x - (sum_x / scale) - n * statrs::generate_float::ln_gamma(shape) - n * shape * scale.ln();
-        Ok(-ln_l)
+        // theta = scale, so rate = 1/scale
+        let g = match Gamma::new(shape, 1.0 / scale) {
+            Ok(g) => g,
+            Err(_) => return Ok(f64::INFINITY),
+        };
+
+        let mut log_likelihood = 0.0;
+        for &x in self.data {
+            log_likelihood += g.ln_pdf(x);
+        }
+        Ok(-log_likelihood)
     }
 }
 
